@@ -5,10 +5,12 @@ gem 'puma'
 gem 'sinatra'
 gem 'dotenv'
 gem 'celluloid-io'
+gem 'google_drive'
 
 group :development, :test do
   gem 'rake'
   gem 'foreman'
+  gem 'pry'
 end
 
 group :test do

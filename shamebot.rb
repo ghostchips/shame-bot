@@ -1,3 +1,4 @@
 require 'slack-ruby-bot'
-require 'shamebot/commands/something'
+require 'shamebot/commands/shame'
 require 'shamebot/bot'
+require 'wall_of_shame'
