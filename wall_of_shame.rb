@@ -1,42 +1,65 @@
 require_relative 'shamebot/connection'
 require 'yaml'
 
-class WallOfShame
-  
-  @@data = {}
-  
-  class << self
-        
-    def data
-      @@data
-    end
+module WallOfShame
     
+  class << self
+
     def teams
-      fetch_data.keys.join(', ')
+      data.keys.join(', ')
     end
     
     def users
-      
+      users = data.map { |_, v| v.keys }
+      teams = data.keys
+      teams.zip(users)
+        .map(&:flatten)
+        .map { |t| t.join(', ') }
+        .map { |t| t.sub(/,/, ':') }
+        .join("\n")
     end
     
-    def add(args = {})
-      user = args[:user].to_sym
-      @@data[user] ? "#{user} already on Wall of Shame" : @@data[user] = ''
+    def add_team(team_name)
+      team_name = team_name.upcase
+      raise '' if data[team_name] # add error
+      data[team_name] = {}
+      !!data[team_name]
     end
     
-    def shame(args = {})
-      args[:user]
-      args[:reason]
+    def add_user(user_name, team_name)
+      user_name = user_name.capitalize
+      team_name = team_name.upcase
+      raise '' if data[team_name][user_name] # add error
+      data[team_name][user_name] = []
+      !!data[team_name][user_name]
+    end
+    
+    def list_shamings(user_name)
+      user_name = user_name.capitalize
+      list = data.map {|_,v| v[user_name]}.flatten.compact
+      list.join("\n")
+    end
+    
+    def count_user_shamings(user_name)
+      list_shamings(user_name).split("\n").size
+    end
+    
+    def shame(user_name)
+    end
+    
+    def errors
+      @errors ||= []
     end
     
     private
     
-    def fetch_data
-      @@data && @@data.any? ? @@data : read_yaml #|| generate_yaml
+    def data
+      @@data ||= read_yaml #|| generate_yaml
     end
     
     def read_yaml
-      @@data = YAML.load(File.open("wall_of_shame.yaml")) 
+      puts 'reading from yaml...'
+      @@data = YAML.load_file("wall_of_shame.yaml")
     end
     
     def generate_yaml
