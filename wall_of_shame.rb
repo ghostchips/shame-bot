@@ -6,45 +6,80 @@ module WallOfShame
   class << self
 
     def teams
-      data.keys.join(', ')
+      data.keys
     end
     
-    def users
-      users = data.map { |_, v| v.keys }
-      teams = data.keys
-      teams.zip(users)
-        .map(&:flatten)
-        .map { |t| t.join(', ') }
-        .map { |t| t.sub(/,/, ':') }
-        .join("\n")
+    def users 
+      data.map { |_, v| v.keys }.flatten
+      
+      # move to access class
+      # users = data.map { |_, v| v.keys }
+      # teams = data.keys
+      # teams.zip(users)
+      #   .map(&:flatten)
+      #   .map { |t| t.join(', ') }
+      #   .map { |t| t.sub(/,/, ':') }
+      #   .join("\n")
     end
     
     def add_team(team_name)
       team_name = team_name.upcase
-      raise '' if data[team_name] # add error
+      return false if data[team_name].tap do |team| 
+        errors << "#{team_name} already listed as team" if team
+      end
       data[team_name] = {}
       !!data[team_name]
     end
     
     def add_user(user_name, team_name)
-      user_name = user_name.capitalize
       team_name = team_name.upcase
-      raise '' if data[team_name][user_name] # add error
+      user_name = user_name.capitalize
+      return false unless fetch_team_data(team_name)      
+      return false if data[team_name][user_name].tap do |user|
+        errors << "#{user_name} already listed under #{team_name}" if user
+      end
       data[team_name][user_name] = []
       !!data[team_name][user_name]
     end
     
-    def list_shamings(user_name)
-      user_name = user_name.capitalize
-      list = data.map {|_,v| v[user_name]}.flatten.compact
-      list.join("\n")
+    def fetch_user_data(user_name)
+      user_data = teams.map { |team| data[team][user_name.capitalize] }.flatten.compact
+      return false if user_data.empty?.tap do |user|
+        errors << "#{user_name} not listed as user" if user_data.empty?
+      end
+      user_data
     end
     
-    def count_user_shamings(user_name)
-      list_shamings(user_name).split("\n").size
+    def fetch_team_data(team_name)
+      team_data = data[team_name.upcase]
+      return false unless team_data.tap do |team|
+        errors << "#{team_name} not listed as team" unless team
+      end
+      team_data
     end
     
-    def shame(user_name)
+    # def list_shamings(name)
+    #   case
+    #   when teams.include?(name.upcase)
+    #     fetch_team_data(name)
+    #   when users.include?(name.capitalize)
+    #     fetch_user_data(name)
+    #   end
+    # end
+    
+    # add these to lookup class
+    # def team_shamings(team_name)
+    #   data[team_name.upcase].values.flatten
+    # end
+    # 
+    # def count_team_shamings(team_name)
+    #   team_name = team_name.upcase
+    #   data[team_name]
+    # end
+    
+    def shame(user_name, team_name = nil)
+      return false unless team_name.nil? || !fetch_team_data(team_name)
+      return false unless fetch_user_data(user_name)
     end
     
     def errors
@@ -68,7 +103,7 @@ module WallOfShame
         @@data[row[0]][row[1]] = row[2..-1]
       end
       write_to_yaml
-      @@data
+      data
     end
     
     def drive_worksheet
@@ -83,16 +118,3 @@ module WallOfShame
   end
   
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
