@@ -11,15 +11,6 @@ module WallOfShame
     
     def users 
       data.map { |_, v| v.keys }.flatten
-      
-      # move to access class
-      # users = data.map { |_, v| v.keys }
-      # teams = data.keys
-      # teams.zip(users)
-      #   .map(&:flatten)
-      #   .map { |t| t.join(', ') }
-      #   .map { |t| t.sub(/,/, ':') }
-      #   .join("\n")
     end
     
     def add_team(team_name)
@@ -36,7 +27,7 @@ module WallOfShame
       return false unless team_data(team) 
       return false if user_in_other_team?(user, team)
       return false if data[team][user].tap do |u|
-        errors << "#{user} already listed under #{team}" if user
+        errors << "#{user} already listed under #{team}" if u
       end
       !!(data[team][user] = [])
     end
@@ -47,6 +38,16 @@ module WallOfShame
       other_user_teams.any?.tap do |in_other_team|
         errors << "#{user} already listed under another team" if in_other_team
       end
+    end
+    
+    def remove_team(team_name)
+      team = team_name.upcase
+      team_data(team) ? !!(data.delete(team)) : false
+    end
+    
+    def remove_user(user_name)
+      user = user_name.capitalize
+      user_data(user) ? (!!data[user_team(user)].delete(user)) : false
     end
     
     def user_data(user_name)
@@ -64,26 +65,7 @@ module WallOfShame
       end
       team_data
     end
-    
-    # def list_shamings(name)
-    #   case
-    #   when teams.include?(name.upcase)
-    #     team_data(name)
-    #   when users.include?(name.capitalize)
-    #     user_data(name)
-    #   end
-    # end
-    
-    # add these to lookup class
-    # def team_shamings(team_name)
-    #   data[team_name.upcase].values.flatten
-    # end
-    # 
-    # def count_team_shamings(team_name)
-    #   team_name = team_name.upcase
-    #   data[team_name]
-    # end
-    
+        
     def user_team(user_name)
       user = user_name.capitalize
       user_data(user) ? data.map { |k,v| k if v[user] }.compact.first : false
@@ -109,7 +91,9 @@ module WallOfShame
       @@data = YAML.load_file("wall_of_shame.yaml")
     end
     
-    def generate_yaml
+    # create yaml file from google drive... do this later
+    # also need to save any changes to @@data to yaml file
+    def generate_yaml 
       drive_worksheet.each do |row|
         @@data[row[0]] = {} unless @@data[row[0]]
         @@data[row[0]][row[1]] = row[2..-1]

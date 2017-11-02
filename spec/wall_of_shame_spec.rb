@@ -7,6 +7,7 @@ describe WallOfShame do
   before do
     yaml_parse = YAML.load_file("spec/wall_of_shame_spec.yaml")
     allow(YAML).to receive(:load_file).with(anything) { yaml_parse }
+    wos.errors.clear
   end
   
   context 'User methods' do
@@ -17,6 +18,7 @@ describe WallOfShame do
     it '#add_user' do
       expect(wos.add_user('Trevor','DEVS')).to eq(true)
       expect(wos.class_variable_get(:@@data)['DEVS']).to include('Trevor' => [] )
+      expect(wos.errors).to eq([])
     end
     
     it '#add_user with user in another team' do
@@ -36,6 +38,7 @@ describe WallOfShame do
     
     it '#user_data' do
       expect(wos.user_data('Micah')).to eq(wos.send(:data)['DEVS']['Micah'])    
+      expect(wos.errors).to eq([])
     end
     
     it '#user_data with invalid user' do
@@ -45,22 +48,32 @@ describe WallOfShame do
     
     it '#user_team' do
       expect(wos.user_team('Micah')).to eq("DEVS")
+      expect(wos.errors).to eq([])
     end
     
-    it 'does something' do
+    it '#shame' do
       expect(wos.shame('Micah', 'Introducing bug', 'Not telling anyone')).to eq(true)
       expect(wos.user_data('Micah')).to include('Introducing bug', 'Not telling anyone')
+      expect(wos.errors).to eq([])
+    end
+    
+    it '#remove_user' do
+      expect(wos.remove_user('Bono')).to eq(true)
+      expect(wos.class_variable_get(:@@data)['DEVS']).to_not include({'Bono'=>['Reason 1']})      
+      expect(wos.errors).to eq([])
     end
   end
   
   context 'Team methods ' do
     it '#teams' do
       expect(wos.teams).to eq(['DEVS', 'OPS'])
+      expect(wos.errors).to eq([])
     end
     
     it '#add_team' do
       expect(wos.add_team('TESTING')).to eq(true)
       expect(wos.class_variable_get(:@@data)).to include('TESTING'=>{})
+      expect(wos.errors).to eq([])
     end
     
     it '#add_team with invalid team' do
@@ -70,11 +83,18 @@ describe WallOfShame do
     
     it '#team_data' do
       expect(wos.team_data('DEVS')).to eq(wos.send(:data)['DEVS'])
+      expect(wos.errors).to eq([])
     end
     
     it '#team_data with invalid team' do
       expect(wos.team_data('DIUS')).to eq(false)
       expect(wos.errors).to include('DIUS not listed as team')    
+    end
+    
+    it '#remove_team' do
+      expect(wos.remove_team('OPS')).to eq(true)
+      expect(wos.class_variable_get(:@@data)).to_not include('OPS'=>{'Sam'=>['Reason 1']})
+      expect(wos.errors).to eq([])
     end
   end
   
