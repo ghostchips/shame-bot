@@ -9,7 +9,7 @@ describe WallOfShame do
     allow(YAML).to receive(:load_file).with(anything) { yaml_parse }
   end
   
-  context 'User methods ' do
+  context 'User methods' do
     it '#users' do
       expect(wos.users).to eq(%w[Micah Bono Sam])
     end
@@ -19,23 +19,37 @@ describe WallOfShame do
       expect(wos.class_variable_get(:@@data)['DEVS']).to include('Trevor' => [] )
     end
     
-    it '#add_user invalid team' do
+    it '#add_user with user in another team' do
+      expect(wos.add_user('Sam','DEVS')).to eq(false)
+      expect(wos.errors).to include('Sam already listed under another team')
+    end
+    
+    it '#add_user with invalid team' do
       expect(wos.add_user('Trevor','DIUS')).to eq(false)
       expect(wos.errors).to include('DIUS not listed as team')
     end
     
-    it '#add_user existing user' do
+    it '#add_user with existing user' do
       expect(wos.add_user('Bono','DEVS')).to eq(false)
       expect(wos.errors).to include('Bono already listed under DEVS')
     end
     
-    it '#fetch_user_data' do
-      expect(wos.fetch_user_data('Micah')).to eq(wos.send(:data)['DEVS']['Micah'])    
+    it '#user_data' do
+      expect(wos.user_data('Micah')).to eq(wos.send(:data)['DEVS']['Micah'])    
     end
     
-    it '#fetch_user_data invalid user' do
-      expect(wos.fetch_user_data('Harry')).to eq(false)
+    it '#user_data with invalid user' do
+      expect(wos.user_data('Harry')).to eq(false)
       expect(wos.errors).to include('Harry not listed as user')    
+    end
+    
+    it '#user_team' do
+      expect(wos.user_team('Micah')).to eq("DEVS")
+    end
+    
+    it 'does something' do
+      expect(wos.shame('Micah', 'Introducing bug', 'Not telling anyone')).to eq(true)
+      expect(wos.user_data('Micah')).to include('Introducing bug', 'Not telling anyone')
     end
   end
   
@@ -49,17 +63,17 @@ describe WallOfShame do
       expect(wos.class_variable_get(:@@data)).to include('TESTING'=>{})
     end
     
-    it '#add_team invalid team' do
+    it '#add_team with invalid team' do
       expect(wos.add_team('DEVS')).to eq(false)
       expect(wos.errors).to include('DEVS already listed as team')    
     end    
     
-    it '#fetch_team_data' do
-      expect(wos.fetch_team_data('DEVS')).to eq(wos.send(:data)['DEVS'])
+    it '#team_data' do
+      expect(wos.team_data('DEVS')).to eq(wos.send(:data)['DEVS'])
     end
     
-    it '#fetch_team_data invalid team' do
-      expect(wos.fetch_team_data('DIUS')).to eq(false)
+    it '#team_data with invalid team' do
+      expect(wos.team_data('DIUS')).to eq(false)
       expect(wos.errors).to include('DIUS not listed as team')    
     end
   end

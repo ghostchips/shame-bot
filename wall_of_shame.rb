@@ -23,26 +23,33 @@ module WallOfShame
     end
     
     def add_team(team_name)
-      team_name = team_name.upcase
-      return false if data[team_name].tap do |team| 
-        errors << "#{team_name} already listed as team" if team
+      team = team_name.upcase
+      return false if data[team].tap do |t| 
+        errors << "#{team} already listed as team" if t
       end
-      data[team_name] = {}
-      !!data[team_name]
+      !!(data[team] = {})
     end
     
     def add_user(user_name, team_name)
-      team_name = team_name.upcase
-      user_name = user_name.capitalize
-      return false unless fetch_team_data(team_name)      
-      return false if data[team_name][user_name].tap do |user|
-        errors << "#{user_name} already listed under #{team_name}" if user
+      team = team_name.upcase
+      user = user_name.capitalize
+      return false unless team_data(team) 
+      return false if user_in_other_team?(user, team)
+      return false if data[team][user].tap do |u|
+        errors << "#{user} already listed under #{team}" if user
       end
-      data[team_name][user_name] = []
-      !!data[team_name][user_name]
+      !!(data[team][user] = [])
     end
     
-    def fetch_user_data(user_name)
+    def user_in_other_team?(user, team)
+      remaining_teams = teams - [team]
+      other_user_teams = remaining_teams.select { |t| data[t].include?(user) }
+      other_user_teams.any?.tap do |in_other_team|
+        errors << "#{user} already listed under another team" if in_other_team
+      end
+    end
+    
+    def user_data(user_name)
       user_data = teams.map { |team| data[team][user_name.capitalize] }.flatten.compact
       return false if user_data.empty?.tap do |user|
         errors << "#{user_name} not listed as user" if user_data.empty?
@@ -50,7 +57,7 @@ module WallOfShame
       user_data
     end
     
-    def fetch_team_data(team_name)
+    def team_data(team_name)
       team_data = data[team_name.upcase]
       return false unless team_data.tap do |team|
         errors << "#{team_name} not listed as team" unless team
@@ -61,9 +68,9 @@ module WallOfShame
     # def list_shamings(name)
     #   case
     #   when teams.include?(name.upcase)
-    #     fetch_team_data(name)
+    #     team_data(name)
     #   when users.include?(name.capitalize)
-    #     fetch_user_data(name)
+    #     user_data(name)
     #   end
     # end
     
@@ -77,9 +84,14 @@ module WallOfShame
     #   data[team_name]
     # end
     
-    def shame(user_name, team_name = nil)
-      return false unless team_name.nil? || !fetch_team_data(team_name)
-      return false unless fetch_user_data(user_name)
+    def user_team(user_name)
+      user = user_name.capitalize
+      user_data(user) ? data.map { |k,v| k if v[user] }.compact.first : false
+    end
+    
+    def shame(user_name, *reasons)
+      user = user_name.capitalize
+      user_data(user) ? !!(reasons.each { |reason| data[user_team(user)][user] << reason }) : false
     end
     
     def errors
