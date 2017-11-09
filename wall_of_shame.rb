@@ -80,11 +80,12 @@ module WallOfShame
       @errors ||= []
     end
     
-    private
-    
     def data
       @@data ||= read_yaml #|| generate_yaml
     end
+    
+    private
+    
     
     def read_yaml
       puts 'reading from yaml...'

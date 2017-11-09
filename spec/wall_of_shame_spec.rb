@@ -4,10 +4,14 @@ describe WallOfShame do
   
   subject(:wos) { WallOfShame }
   
-  before do
+  before(:each) do
     yaml_parse = YAML.load_file("spec/wall_of_shame_spec.yaml")
     allow(YAML).to receive(:load_file).with(anything) { yaml_parse }
-    wos.errors.clear
+  end
+  
+  after(:each) do
+    SpecHelper.reset_data
+    SpecHelper.clear_errors 
   end
   
   context 'User methods' do
