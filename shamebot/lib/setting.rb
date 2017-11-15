@@ -19,7 +19,7 @@ module ShameBot; module Lib
 
     def add_user(user_name, team_name)
       if WallOfShame.add_user(user_name, team_name)
-        "#{user_name.capitalize} added to #{team_name.upcase}"
+        "#{user_name.capitalize} added to #{team_name.upcase} team"
       else
         display_errors
       end
@@ -36,7 +36,7 @@ module ShameBot; module Lib
     def remove_user(user_name)
       user_team = WallOfShame.user_team(user_name)
       if WallOfShame.remove_user(user_name)
-        "#{user_name.capitalize} removed from #{user_team}"
+        "#{user_name.capitalize} removed from #{user_team} team"
       else
         user_team ? display_errors : display_errors.split("\n").last
       end
@@ -44,7 +44,7 @@ module ShameBot; module Lib
 
     def remove_team(team_name)
       if WallOfShame.remove_team(team_name)
-        "#{team_name.upcase} removed from Wall of Shame"
+        "#{team_name.upcase} team removed from Wall of Shame"
       else
         display_errors
       end

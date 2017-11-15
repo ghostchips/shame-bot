@@ -40,7 +40,7 @@ describe ShameBot::Lib::Setting do
 
     context 'adding' do
       it 'a new user to an existing team' do
-        expect(set.add_user(new_user, existing_team)).to eq "#{new_user} added to #{existing_team}"
+        expect(set.add_user(new_user, existing_team)).to eq "#{new_user} added to #{existing_team} team"
       end
 
       it 'user to new team' do
@@ -63,7 +63,7 @@ describe ShameBot::Lib::Setting do
 
     context 'removing' do
       it 'existing user' do
-        expect(set.remove_user(existing_user)).to eq "#{existing_user} removed from DEVS"
+        expect(set.remove_user(existing_user)).to eq "#{existing_user} removed from DEVS team"
       end
 
       it 'new user' do
@@ -71,7 +71,7 @@ describe ShameBot::Lib::Setting do
       end
 
       it 'existing team' do
-        expect(set.remove_team(existing_team)).to eq "#{existing_team} removed from Wall of Shame"
+        expect(set.remove_team(existing_team)).to eq "#{existing_team} team removed from Wall of Shame"
       end
 
       it 'new team' do
