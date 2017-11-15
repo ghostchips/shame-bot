@@ -33,6 +33,23 @@ module ShameBot; module Lib
       end
     end
 
+    def remove_user(user_name)
+      user_team = WallOfShame.user_team(user_name)
+      if WallOfShame.remove_user(user_name)
+        "#{user_name.capitalize} removed from #{user_team}"
+      else
+        user_team ? display_errors : display_errors.split("\n").last
+      end
+    end
+
+    def remove_team(team_name)
+      if WallOfShame.remove_team(team_name)
+        "#{team_name.upcase} removed from Wall of Shame"
+      else
+        display_errors
+      end
+    end
+
     private
 
     def display_errors

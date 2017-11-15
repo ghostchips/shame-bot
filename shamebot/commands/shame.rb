@@ -13,6 +13,7 @@ module ShameBot; module Commands
     command 'list user shamings' do |client, data, match|
       user = match['expression'][4..-1]
       response = get.user_shamings(user).join("\n")
+      # require 'pry'; binding.pry;
       client.say(channel: data.channel, text: response)
     end
 
