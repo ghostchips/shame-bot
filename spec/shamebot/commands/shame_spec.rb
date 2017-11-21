@@ -18,12 +18,16 @@ describe ShameBot::Commands::Shame do
     expect(message: "#{SlackRubyBot.config.user} shame Micah for reason", channel: 'channel').to respond_with_slack_message "Micah shamed for reason."
   end
 
+  it 'displays error message' do
+    expect(message: "#{SlackRubyBot.config.user} shame Sam for reason", channel: 'channel').to respond_with_slack_message "Sam not listed as user"
+  end
+
   it 'list a users shamings' do
     expect(message: "#{SlackRubyBot.config.user} list user shamings for Micah", channel: 'channel').to respond_with_slack_message "Reason 1\nReason 2"
   end
 
   it 'list a teams shamings' do
-    expect(message: "#{SlackRubyBot.config.user} list team shamings for DEVS", channel: 'channel').to respond_with_slack_message "Micah: Reason 1\nReason 2\nBono: Reason 1"
+    expect(message: "#{SlackRubyBot.config.user} list team shamings for DEVS", channel: 'channel').to respond_with_slack_message "Micah:\n   Reason 1\n   Reason 2\nBono:\n   Reason 1"
   end
 
   it 'lists teams ranked by shamings' do

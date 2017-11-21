@@ -23,7 +23,7 @@ module ShameBot; module Lib
 
     def team_shamings(team_name)
       if team = WallOfShame.team_data(team_name)
-        team.map { |user, shamings| "#{user}: #{shamings.join("\n")}" }
+        team.map { |user, shamings| "#{user}:\n   #{shamings.join("\n   ")}" }
       else
         display_errors
       end

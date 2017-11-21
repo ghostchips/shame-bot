@@ -13,7 +13,7 @@ class SpecHelper
 
     def reset_data
       WallOfShame.class_variable_set(:@@data, nil)
-      WallOfShame.class_variable_set(:@@yaml, nil)
+      # WallOfShame.class_variable_set(:@@yaml, nil)
       File.open('wall_of_shame_spec.yaml', "w") do |file|
         puts 'writing to yaml...'
         file.write sample_data.to_yaml

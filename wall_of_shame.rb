@@ -4,85 +4,56 @@ require 'yaml'
 module WallOfShame
 
   class << self
-
-    def teams
-      data.keys
+    
+    def add_team(team)
+      return false if team_exists?(team)
+      data[team] = {}
+      !!update_yaml
     end
 
-    def users
-      data.map { |_, v| v.keys }.flatten
+    def add_user(user, team)
+      return false unless team_exists?(team)
+      return false if user_in_team?(user, team) || user_in_other_team?(user, team)
+      data[team][user] = []
+      !!update_yaml
     end
 
-    def add_team(team_name)
-      team = team_name.upcase
-      return false if data[team].tap do |t|
-        errors << "#{team} already listed as team" if t
-      end
-      !!(data[team] = {}).tap { |_| update_yaml }
+    def remove_team(team)
+      return false unless team_exists?(team)
+      data.delete(team)
+      !!update_yaml
     end
 
-    def add_user(user_name, team_name)
-      team = team_name.upcase
-      user = user_name.capitalize
-      return false unless team_data(team)
-      return false if user_in_other_team?(user, team)
-      return false if data[team][user].tap do |u|
-        errors << "#{user} already listed under #{team}" if u
-      end
-      !!(data[team][user] = []).tap { |_| update_yaml }
+    def remove_user(user)
+      return false unless user_exists?(user)
+      data[user_team(user)].delete(user)
+      !!update_yaml
     end
 
-    def user_in_other_team?(user, team)
-      remaining_teams = teams - [team]
-      other_user_teams = remaining_teams.select { |t| data[t].include?(user) }
-      other_user_teams.any?.tap do |in_other_team|
-        errors << "#{user} already listed under another team" if in_other_team
-      end
+    def user_data(user)
+      return false unless user_exists?(user)
+      data[user_team(user)][user]
     end
 
-    def remove_team(team_name)
-      team = team_name.upcase
-      team_data(team) ? !!(data.delete(team)).tap { |_| update_yaml } : false
+    def team_data(team)
+      return false unless team_exists?(team)
+      data[team]
     end
 
-    def remove_user(user_name)
-      user = user_name.capitalize
-      user_data(user) ? (!!data[user_team(user)].delete(user)).tap { |_| update_yaml } : false
+    def shame(user, *reasons)
+      return false unless user_exists?(user)
+      reasons.each { |reason| data[user_team(user)][user] << reason }
+      !!update_yaml
     end
 
-    def user_data(user_name)
-      user_data = teams.map { |team| data[team][user_name.capitalize] }.flatten.compact
-      return false if user_data.empty?.tap do |user|
-        errors << "#{user_name} not listed as user" if user_data.empty?
-      end
-      user_data
-    end
-
-    def team_data(team_name)
-      team_data = data[team_name.upcase]
-      return false unless team_data.tap do |team|
-        errors << "#{team_name} not listed as team" unless team
-      end
-      team_data
-    end
-
-    def user_team(user_name)
-      user = user_name.capitalize
-      user_data(user) ? data.map { |k,v| k if v[user] }.compact.first : false
-    end
-
-    def shame(user_name, *reasons)
-      user = user_name.capitalize
-      if user_data(user)
-        !!(reasons.each { |reason| data[user_team(user)][user] << reason })
-          .tap { |_| update_yaml }
-      else
-        false
-      end
-    end
-
-    def errors
-      @errors ||= []
+    def errors(arg, arg2 = nil)
+      [
+        "#{arg} not listed as user",
+        "#{arg} not listed as team",
+        "#{arg} already listed as team",
+        "#{arg} already listed under #{arg2}"
+      ]
+      @@errors ||= []
     end
 
     def data
@@ -90,9 +61,43 @@ module WallOfShame
     end
 
     private
+    
+    def teams
+      data.keys
+    end
+
+    def users
+      data.map { |_, v| v.keys }.flatten
+    end
+    
+    def users_in_team(team)
+      data[team].keys
+    end
+    
+    def user_in_other_team?(user, team)
+      remaining_teams = teams - [team]
+      other_user_teams = remaining_teams.select { |t| data[t].include?(user) }
+      other_user_teams.any?
+    end
+    
+    def user_in_team?(user, team)
+      users_in_team(team).include?(user)
+    end
+    
+    def user_team(user)
+      data.map { |team, users| team if users[user.capitalize] }.compact.first
+    end
+    
+    def team_exists?(team)
+      teams.include?(team)
+    end
+    
+    def user_exists?(user)
+      users.include?(user)
+    end
 
     def read_yaml
-      @@yaml ||= YAML.load_file("wall_of_shame.yaml").tap do |file|
+      YAML.load_file("wall_of_shame.yaml").tap do |file|
         puts 'reading from yaml...' if file
       end
     end
@@ -119,8 +124,11 @@ module WallOfShame
         puts 'writing to yaml...'
         file.write @@data.to_yaml
       end
-      @@data = read_yaml
     end
   end
+  
+  ERRORS = [
+    ''
+  ]
 
 end

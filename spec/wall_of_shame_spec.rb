@@ -1,12 +1,19 @@
 require 'spec_helper'
 
 describe WallOfShame do
-
+  
+  let(:data) do
+    { 
+      'DEVS' => { "Micah" => ["Reason 1", "Reason 2"], "Bono"=> ["Reason 1"] },
+      'OPS'  => { "Sam" => ["Reason 1", "Reason 2"] } 
+    }
+  end  
+  
   subject(:wos) { WallOfShame }
 
   before(:each) do
-    yaml_parse = YAML.load_file("spec/wall_of_shame_spec.yaml")
-    allow(YAML).to receive(:load_file).with(anything) { yaml_parse }
+    # yaml_parse = YAML.load_file("spec/wall_of_shame_spec.yaml")
+    allow(YAML).to receive(:load_file).with(anything) { data }
     SpecHelper.reset_data
     SpecHelper.clear_errors
   end
@@ -43,7 +50,7 @@ describe WallOfShame do
     end
 
     it '#user_data' do
-      expect(wos.user_data('Micah')).to eq(wos.send(:data)['DEVS']['Micah'])
+      expect(wos.user_data('Micah')).to eq(data['DEVS']['Micah'])
       expect(wos.errors).to eq([])
     end
 
@@ -103,8 +110,7 @@ describe WallOfShame do
     end
 
     it '#team_data' do
-      expect(wos.team_data('DEVS')).to eq(wos.send(:data)['DEVS'])
-      expect(wos.errors).to eq([])
+      expect(wos.team_data('DEVS')).to eq(data['DEVS'])
     end
 
     it '#team_data with invalid team' do

@@ -37,7 +37,7 @@ describe ShameBot::Lib::Getting do
   end
 
   it 'list team shamings' do
-    expect(get.team_shamings(existing_team)).to eq ["Micah: Reason 1\nReason 2","Bono: Reason 1"]
+    expect(get.team_shamings(existing_team)).to eq ["Micah:\n   Reason 1\n   Reason 2","Bono:\n   Reason 1"]
     expect(get.team_shamings(new_team)).to eq no_team_error
   end
 

@@ -1,0 +1,15 @@
+current directory: /Users/micahboyd/Desktop/shamebot/vendor/bundle/gems/websocket-driver-0.7.0/ext/websocket-driver
+/Users/micahboyd/.rbenv/versions/2.4.1/bin/ruby -r ./siteconf20171110-669-1u4r8l9.rb extconf.rb
+creating Makefile
+
+current directory: /Users/micahboyd/Desktop/shamebot/vendor/bundle/gems/websocket-driver-0.7.0/ext/websocket-driver
+make "DESTDIR=" clean
+
+current directory: /Users/micahboyd/Desktop/shamebot/vendor/bundle/gems/websocket-driver-0.7.0/ext/websocket-driver
+make "DESTDIR="
+compiling websocket_mask.c
+linking shared-object websocket_mask.bundle
+
+current directory: /Users/micahboyd/Desktop/shamebot/vendor/bundle/gems/websocket-driver-0.7.0/ext/websocket-driver
+make "DESTDIR=" install
+/usr/bin/install -c -m 0755 websocket_mask.bundle ./.gem.20171110-669-451att
