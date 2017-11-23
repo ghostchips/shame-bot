@@ -13,7 +13,7 @@ module WallOfShame
 
     def add_user(user, team)
       return false unless team_exists?(team)
-      return false if user_in_team?(user, team) || user_in_other_team?(user, team)
+      return false if user_in_a_team?(user)
       data[team][user] = []
       !!update_yaml
     end
@@ -45,14 +45,12 @@ module WallOfShame
       reasons.each { |reason| data[user_team(user)][user] << reason }
       !!update_yaml
     end
+    
+    def user_team(user)
+      data.map { |team, users| team if users[user] }.compact.first
+    end
 
-    def errors(arg, arg2 = nil)
-      [
-        "#{arg} not listed as user",
-        "#{arg} not listed as team",
-        "#{arg} already listed as team",
-        "#{arg} already listed under #{arg2}"
-      ]
+    def errors
       @@errors ||= []
     end
 
@@ -61,7 +59,25 @@ module WallOfShame
     end
 
     private
+        
+    def team_exists?(team)
+      teams.include?(team).tap do |includes_team| 
+        errors << includes_team ? "#{team} already listed as team" : "#{team} not listed as team"
+      end
+    end
     
+    def user_exists?(user)
+      users.include?(user).tap do |includes_user| 
+        errors << "#{user} not listed as user" unless includes_user
+      end
+    end
+    
+    def user_in_a_team?(user)
+      user_team(user).tap do |team| 
+        errors << "#{user} already listed in #{team}" if team
+      end
+    end
+
     def teams
       data.keys
     end
@@ -74,28 +90,6 @@ module WallOfShame
       data[team].keys
     end
     
-    def user_in_other_team?(user, team)
-      remaining_teams = teams - [team]
-      other_user_teams = remaining_teams.select { |t| data[t].include?(user) }
-      other_user_teams.any?
-    end
-    
-    def user_in_team?(user, team)
-      users_in_team(team).include?(user)
-    end
-    
-    def user_team(user)
-      data.map { |team, users| team if users[user.capitalize] }.compact.first
-    end
-    
-    def team_exists?(team)
-      teams.include?(team)
-    end
-    
-    def user_exists?(user)
-      users.include?(user)
-    end
-
     def read_yaml
       YAML.load_file("wall_of_shame.yaml").tap do |file|
         puts 'reading from yaml...' if file
@@ -126,9 +120,5 @@ module WallOfShame
       end
     end
   end
-  
-  ERRORS = [
-    ''
-  ]
 
 end

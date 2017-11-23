@@ -9,42 +9,42 @@ module ShameBot; module Lib
       WallOfShame.errors.clear
     end
 
-    def shame(user_name, *reasons)
-      if WallOfShame.shame(user_name, *reasons)
-        "#{user_name.capitalize} shamed for #{reasons.size == 1 ? reasons.first : reasons.join('; ')}."
+    def shame(user, *reasons)
+      if WallOfShame.shame(user, *reasons)
+        "#{user} shamed for #{reasons.size == 1 ? reasons.first : reasons.join('; ')}."
       else
         display_errors
       end
     end
 
-    def add_user(user_name, team_name)
-      if WallOfShame.add_user(user_name, team_name)
-        "#{user_name.capitalize} added to #{team_name.upcase} team"
+    def add_user(user, team)
+      if WallOfShame.add_user(user, team)
+        "#{user} added to #{team} team"
       else
         display_errors
       end
     end
 
-    def add_team(team_name)
-      if WallOfShame.add_team(team_name)
-        "#{team_name.upcase} added as team"
+    def add_team(team)
+      if WallOfShame.add_team(team)
+        "#{team} added as team"
       else
         display_errors
       end
     end
 
-    def remove_user(user_name)
-      user_team = WallOfShame.user_team(user_name)
-      if WallOfShame.remove_user(user_name)
-        "#{user_name.capitalize} removed from #{user_team} team"
+    def remove_user(user)
+      user_team = WallOfShame.user_team(user)
+      if WallOfShame.remove_user(user)
+        "#{user} removed from #{user_team} team"
       else
         user_team ? display_errors : display_errors.split("\n").last
       end
     end
 
-    def remove_team(team_name)
-      if WallOfShame.remove_team(team_name)
-        "#{team_name.upcase} team removed from Wall of Shame"
+    def remove_team(team)
+      if WallOfShame.remove_team(team)
+        "#{team} team removed from Wall of Shame"
       else
         display_errors
       end
