@@ -6,7 +6,7 @@ module WallOfShame
   class << self
     
     def add_team(team)
-      return false if team_exists?(team)
+      return false unless new_team?(team)
       data[team] = {}
       !!update_yaml
     end
@@ -50,6 +50,14 @@ module WallOfShame
       data.map { |team, users| team if users[user] }.compact.first
     end
 
+    def teams
+      data.keys
+    end
+    
+    def users
+      data.map { |_, v| v.keys }.flatten
+    end
+    
     def errors
       @@errors ||= []
     end
@@ -61,14 +69,20 @@ module WallOfShame
     private
         
     def team_exists?(team)
-      teams.include?(team).tap do |includes_team| 
-        errors << includes_team ? "#{team} already listed as team" : "#{team} not listed as team"
+      teams.include?(team).tap do |team_exists| 
+        errors << "#{team} not listed as team" unless team_exists
+      end
+    end
+    
+    def new_team?(team)
+      teams.exclude?(team).tap do |new_team| 
+        errors << "#{team} already listed as team" unless new_team
       end
     end
     
     def user_exists?(user)
-      users.include?(user).tap do |includes_user| 
-        errors << "#{user} not listed as user" unless includes_user
+      users.include?(user).tap do |user_exists| 
+        errors << "#{user} not listed as user" unless user_exists
       end
     end
     
@@ -78,14 +92,6 @@ module WallOfShame
       end
     end
 
-    def teams
-      data.keys
-    end
-
-    def users
-      data.map { |_, v| v.keys }.flatten
-    end
-    
     def users_in_team(team)
       data[team].keys
     end
