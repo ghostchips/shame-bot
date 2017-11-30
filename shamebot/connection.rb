@@ -2,7 +2,7 @@ require 'google_drive'
 
 module ShameBot; module Data;
   class Connection
-            
+
     def write(args = {})
       worksheet['A1'] = args[:user]
       worksheet.save

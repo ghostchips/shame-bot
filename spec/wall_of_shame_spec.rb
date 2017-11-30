@@ -3,28 +3,31 @@ require 'spec_helper'
 describe WallOfShame do
   
   let(:data) do
-    { 
-      'DEVS' => { "Micah" => ["Reason 1", "Reason 2"], "Bono"=> ["Reason 1"] },
-      'OPS'  => { "Sam" => ["Reason 1", "Reason 2"] } 
-    }
+    { 'DEVS' => { "Micah" => ["Reason 1", "Reason 2"], "Bono"=> ["Reason 1"] },
+      'OPS'  => { "Sam" => ["Reason 1", "Reason 2"] } }
   end  
   
   subject(:wos) { WallOfShame }
 
-  before(:each) do
-    # yaml_parse = YAML.load_file("spec/wall_of_shame_spec.yaml")
-    allow(YAML).to receive(:load_file).with(anything) { data }
-    # allow(File).to receive(:open).with(anything, anything) { double }
-    SpecHelper.reset_data
-    SpecHelper.clear_errors    
+  before(:each) do 
+    allow(YAML).to receive(:load_file).with(anything) { data } 
+    allow(File).to receive(:open).with("wall_of_shame.yaml", "w") { puts 'writing to yaml...'; true }
   end
   
+  after(:each)  { SpecHelper.reset_data }
+  
   context 'User methods' do
-    # it '#users' do
-    #   expect(wos.users).to eq(%w[Micah Bono Sam])
-    # end
+    it '#users' do
+      expect(wos.users).to eq(%w[Micah Bono Sam])
+    end
 
     it '#add_user' do
+      expect(wos.add_user('Trevor','DEVS')).to eq(true)
+      expect(wos.class_variable_get(:@@data)['DEVS']).to include('Trevor' => [] )
+    end
+
+    it '#add_user with empty data' do
+      data = {}
       expect(wos.add_user('Trevor','DEVS')).to eq(true)
       expect(wos.class_variable_get(:@@data)['DEVS']).to include('Trevor' => [] )
     end
@@ -54,9 +57,9 @@ describe WallOfShame do
       expect(wos.user_data('Harry')).to eq(false)
     end
 
-    # it '#user_team' do
-    #   expect(wos.user_team('Micah')).to eq("DEVS")
-    # end
+    it '#user_team' do
+      expect(wos.user_team('Micah')).to eq("DEVS")
+    end
 
     it '#shame' do
       expect(wos.shame('Micah', 'Introducing bug', 'Not telling anyone')).to eq(true)
@@ -80,11 +83,17 @@ describe WallOfShame do
   end
 
   context 'Team methods ' do
-    # it '#teams' do
-    #   expect(wos.teams).to eq(['DEVS', 'OPS'])
-    # end
+    it '#teams' do
+      expect(wos.teams).to eq(['DEVS', 'OPS'])
+    end
 
     it '#add_team' do
+      expect(wos.add_team('TESTING')).to eq(true)
+      expect(wos.class_variable_get(:@@data)).to include('TESTING'=>{})
+    end
+
+    it '#add_team with empty data' do
+      data = {}
       expect(wos.add_team('TESTING')).to eq(true)
       expect(wos.class_variable_get(:@@data)).to include('TESTING'=>{})
     end
@@ -117,5 +126,4 @@ describe WallOfShame do
     end
 
   end
-
 end

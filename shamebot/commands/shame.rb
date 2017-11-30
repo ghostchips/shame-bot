@@ -5,30 +5,35 @@ module ShameBot; module Commands
   class Shame < SlackRubyBot::Commands::Base
 
     command 'shame' do |client, data, match|
-      user, reason = match['expression'].split(' for ')
-      response = set.shame(user, reason)
-      client.say(channel: data.channel, text: response)
+      user, reasons = match[:expression].split(' for ')
+      reasons = reasons.split('. ') if reasons.include?('.')
+      response = set.shame(user.capitalize, *reasons)
+      client.say(channel: data.channel, text: "Shame!\nShame!\nShame!\n#{response}")
     end
 
     command 'list user shamings' do |client, data, match|
-      user = match['expression'][4..-1]
-      response = get.user_shamings(user).join("\n")
+      user = match[:expression][4..-1].capitalize
+      shamings = get.user_shamings(user)
+      response = shamings.empty? ? "#{user} is free of shame" : shamings.join("\n")
       client.say(channel: data.channel, text: response)
     end
 
     command 'list team shamings' do |client, data, match|
-      team = match['expression'][4..-1]
-      response = get.team_shamings(team).join("\n")
+      team = match[:expression][4..-1].upcase
+      shamings = get.team_shamings(team)
+      response = shamings.empty? ? "#{team} is free of shame" : shamings.join("\n")
       client.say(channel: data.channel, text: response)
     end
 
     command 'list team rankings' do |client, data, match|
-      response = get.teams_by_shamings.join("\n")
+      rankings = get.teams_by_shamings
+      response = rankings.empty? ? "No teams to display. Please add teams." : rankings.join("\n")
       client.say(channel: data.channel, text: response)
     end
 
     command 'list user rankings' do |client, data, match|
-      response = get.users_by_shamings.join("\n")
+      rankings = get.users_by_shamings
+      response = rankings.empty? ? "No users to display. Please add users." : rankings.join("\n")
       client.say(channel: data.channel, text: response)
     end
 

@@ -23,6 +23,7 @@ module ShameBot; module Lib
 
     def team_shamings(team_name)
       if team = WallOfShame.team_data(team_name)
+        return [] if team.select {|user, shamings| shamings.any?}.empty?
         team.map { |user, shamings| "#{user}:\n   #{shamings.join("\n   ")}" }
       else
         display_errors
@@ -43,12 +44,14 @@ module ShameBot; module Lib
     end
 
     def teams_by_shamings
+      return [] if teams_shaming_hash.empty?
       teams_shaming_hash.map { |team, count| "#{count}#{team}" }.sort.reverse
         .map { |team| team[1..-1] }
         .map { |team|"#{team}: #{teams_shaming_hash[team]}" }
     end
 
     def users_by_shamings
+      return [] if users_shaming_hash.empty?
       users_shaming_hash.map { |user, count| "#{count}#{user}" }.sort.reverse
         .map { |user| user[1..-1] }
         .map { |user| "#{user}: #{users_shaming_hash[user]}" }
@@ -63,7 +66,7 @@ module ShameBot; module Lib
     def teams_shaming_hash
       {}.tap do |shame_count|
         WallOfShame.teams.each do |team|
-          shame_count[team] = count_team_shamings(team)
+          shame_count[team] = count_team_shamings(team) if team
         end
       end
     end
@@ -71,7 +74,7 @@ module ShameBot; module Lib
     def users_shaming_hash
       {}.tap do |shame_count|
         WallOfShame.users.each do |user|
-          shame_count[user] = count_user_shamings(user)
+          shame_count[user] = count_user_shamings(user) if user
         end
       end
     end

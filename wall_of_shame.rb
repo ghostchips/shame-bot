@@ -63,32 +63,34 @@ module WallOfShame
     end
 
     def data
-      @@data ||= read_yaml #|| generate_yaml
+      @@data ||= read_yaml || {} #|| generate_yaml
     end
 
     private
         
     def team_exists?(team)
       teams.include?(team).tap do |team_exists| 
-        errors << "#{team} not listed as team" unless team_exists
+        errors << "#{team} is not listed as team" unless team_exists
       end
     end
     
     def new_team?(team)
+      return true if data.empty?
       teams.exclude?(team).tap do |new_team| 
-        errors << "#{team} already listed as team" unless new_team
+        errors << "#{team} is already listed as team" unless new_team
       end
     end
     
     def user_exists?(user)
+      return false if data.empty?
       users.include?(user).tap do |user_exists| 
-        errors << "#{user} not listed as user" unless user_exists
+        errors << "#{user} is not listed as user" unless user_exists
       end
     end
     
     def user_in_a_team?(user)
       user_team(user).tap do |team| 
-        errors << "#{user} already listed in #{team}" if team
+        errors << "#{user} is already listed in #{team}" if team
       end
     end
 

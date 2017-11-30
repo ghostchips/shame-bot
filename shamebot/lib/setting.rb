@@ -27,7 +27,7 @@ module ShameBot; module Lib
 
     def add_team(team)
       if WallOfShame.add_team(team)
-        "#{team} added as team"
+        "#{team} added as a team"
       else
         display_errors
       end
