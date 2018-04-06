@@ -70,21 +70,21 @@ module WallOfShame
         
     def team_exists?(team)
       teams.include?(team).tap do |team_exists| 
-        errors << "#{team} is not listed as team" unless team_exists
+        errors << "#{team} is not listed as a team" unless team_exists
       end
     end
     
     def new_team?(team)
       return true if data.empty?
       teams.exclude?(team).tap do |new_team| 
-        errors << "#{team} is already listed as team" unless new_team
+        errors << "#{team} is already listed as a team" unless new_team
       end
     end
     
     def user_exists?(user)
       return false if data.empty?
       users.include?(user).tap do |user_exists| 
-        errors << "#{user} is not listed as user" unless user_exists
+        errors << "#{user} is not listed as a user" unless user_exists
       end
     end
     

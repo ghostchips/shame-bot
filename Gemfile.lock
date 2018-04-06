@@ -1,5 +1,5 @@
 GEM
-  remote: http://railscamp.local/rubygems/
+  remote: https://rubygems.org/
   specs:
     activesupport (5.1.4)
       concurrent-ruby (~> 1.0, >= 1.0.2)
@@ -176,4 +176,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   1.15.4
+   1.16.0
